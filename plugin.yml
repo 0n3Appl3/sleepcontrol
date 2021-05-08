@@ -1,0 +1,13 @@
+main: me.appl3.sleepcontrol.SleepControl
+name: SleepControl
+version: '1.0'
+description: A simple server-wide sleep management plugin.
+api-version: '1.16'
+load: POSTWORLD
+author: 0n3Appl3
+website: corruptedfilms.appl3pvp.com
+prefix: SleepControl
+commands:
+  sleep:
+    description: Adds one vote to skip the night.
+    usage: /<command> [test|stop]
