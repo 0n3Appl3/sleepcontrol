@@ -19,10 +19,10 @@ public class SleepControl extends JavaPlugin implements Listener {
 	ArrayList<Player> sleeping = new ArrayList<Player>();
 	ArrayList<Player> voted = new ArrayList<Player>();
 	
-	public int voteCount = 0;
-	public int votesNeeded = 0;
+	int voteCount = 0;
+	int votesNeeded = 0;
 	
-	public String prefix = "&8Sleep > ";
+	String prefix = "&8Sleep > ";
 	
 	public void onEnable() {
 		Bukkit.getServer().getConsoleSender().sendMessage(ChatColor.translateAlternateColorCodes('&', "&7> &aSleepControl has been Enabled!"));
@@ -71,8 +71,6 @@ public class SleepControl extends JavaPlugin implements Listener {
 		for (Player player : Bukkit.getOnlinePlayers()) {
 			if (player.isSleeping())
 				sleeping.add(player);
-			//else if (sleeping.contains(user))
-			//	sleeping.remove(user);
 		}
 	}
 	
@@ -85,10 +83,11 @@ public class SleepControl extends JavaPlugin implements Listener {
 				votesNeeded++;
 				
 			for (Player player : Bukkit.getOnlinePlayers()) {
-				if (sleeping.isEmpty())
+				if (sleeping.size() == 1) {
 					sendMessage(player, prefix + "&b&l" + sleeping.get(0).getName().toString() + " &7is now resting. Type &6/sleep &7to vote to skip night or sleep in a bed. (&3" + voteCount + "/" + votesNeeded + " votes&7)");
-				else
-					sendMessage(player, prefix + "&3&l" + sleeping.get(sleeping.size() - 1).getName().toString() + " &7is also resting. (&b" + voteCount + "/" + votesNeeded + " votes&7)");
+					return;
+				}
+				sendMessage(player, prefix + "&3&l" + sleeping.get(sleeping.size() - 1).getName().toString() + " &7is also resting. (&b" + voteCount + "/" + votesNeeded + " votes&7)");
 			}
 		}
 	}
@@ -96,10 +95,12 @@ public class SleepControl extends JavaPlugin implements Listener {
 	public void checkVotes(Player player) {
 		int numberOfPlayers = Bukkit.getOnlinePlayers().size(); // Get number of online players.
 		
-		if (voteCount == votesNeeded || numberOfPlayers == 1) {
+		if (voteCount == votesNeeded || numberOfPlayers == 1 || votesNeeded == 0) {
 			player.getWorld().setTime(0); // Day time!
 			voteCount = 0;
 			votesNeeded = 0;
+			voted.clear();
+			sleeping.clear();
 			
 			for (Player user : Bukkit.getOnlinePlayers()) {
 				sendMessage(user, prefix + "&7&lGood morning!");
