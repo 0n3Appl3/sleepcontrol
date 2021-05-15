@@ -44,7 +44,7 @@ public class SleepControl extends JavaPlugin implements Listener {
 							voted.add(player);
 							
 							for (Player user : Bukkit.getOnlinePlayers()) {
-								sendMessage(user, prefix + "&3&l" + player.getName().toString() + " &7voted to skip night. (&b" + voteCount + "/" + votesNeeded);
+								sendMessage(user, prefix + "&3&l" + player.getName().toString() + " &7voted to skip night. (&b" + voteCount + "/" + votesNeeded + " votes&7)");
 							}
 							checkVotes(player);
 						} else {
@@ -66,13 +66,13 @@ public class SleepControl extends JavaPlugin implements Listener {
 		sender.sendMessage(ChatColor.translateAlternateColorCodes('&', message));
 	}
 	
-	public void getSleepers() {
-		sleeping.clear();
-		for (Player player : Bukkit.getOnlinePlayers()) {
-			if (player.isSleeping())
-				sleeping.add(player);
-		}
-	}
+	//public void getSleepers() {
+	//	sleeping.clear();
+	//	for (Player player : Bukkit.getOnlinePlayers()) {
+	//		if (player.isSleeping())
+	//			sleeping.add(player);
+	//	}
+	//}
 	
 	public void initSleep() {
 		int numberOfPlayers = Bukkit.getOnlinePlayers().size(); // Get number of online players.
@@ -83,7 +83,7 @@ public class SleepControl extends JavaPlugin implements Listener {
 				votesNeeded++;
 				
 			for (Player player : Bukkit.getOnlinePlayers()) {
-				if (sleeping.size() == 1) {
+				if (sleeping.size() < 2) {
 					sendMessage(player, prefix + "&b&l" + sleeping.get(0).getName().toString() + " &7is now resting. Type &6/sleep &7to vote to skip night or sleep in a bed. (&3" + voteCount + "/" + votesNeeded + " votes&7)");
 					return;
 				}
@@ -122,6 +122,7 @@ public class SleepControl extends JavaPlugin implements Listener {
 				}
 			} else {
 				voteCount = 0; // If no one is sleeping, then the vote count is reset.
+				voted.clear();
 				
 				for (Player user : Bukkit.getOnlinePlayers()) {
 					sendMessage(user, prefix + "&cNo one is asleep. Votes reset.");
@@ -135,7 +136,10 @@ public class SleepControl extends JavaPlugin implements Listener {
 		Player player = event.getPlayer();
 		
 		if (player.getWorld().getEnvironment() == Environment.NORMAL && event.getBedEnterResult() == PlayerBedEnterEvent.BedEnterResult.OK) {
-			getSleepers();
+			if (voted.contains(player))
+				voted.remove(player);
+			sleeping.add(player);
+			//getSleepers();
 			initSleep();
 			checkVotes(player);
 		}
