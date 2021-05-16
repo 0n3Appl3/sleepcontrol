@@ -16,11 +16,13 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class SleepControl extends JavaPlugin implements Listener {
+	ArrayList<Player> playersInOverworld = new ArrayList<Player>();
 	ArrayList<Player> sleeping = new ArrayList<Player>();
 	ArrayList<Player> voted = new ArrayList<Player>();
 	
 	int voteCount = 0;
 	int votesNeeded = 0;
+	int nightTime = 13000;
 	
 	String prefix = "&8Sleep > ";
 	
@@ -38,20 +40,24 @@ public class SleepControl extends JavaPlugin implements Listener {
 			if (label.equalsIgnoreCase("sleep")) {
 				// Add one to the vote count to pass the night.
 				if (!sleeping.isEmpty()) {
-					if (!sleeping.contains(player)) {
-						if (!voted.contains(player)) {
-							voteCount++;
-							voted.add(player);
-							
-							for (Player user : Bukkit.getOnlinePlayers()) {
-								sendMessage(user, prefix + "&3&l" + player.getName().toString() + " &7voted to skip night. (&b" + voteCount + "/" + votesNeeded + " votes&7)");
+					if (player.getWorld().getEnvironment() != Environment.NORMAL) {
+						if (!sleeping.contains(player)) {
+							if (!voted.contains(player)) {
+								voteCount++;
+								voted.add(player);
+								
+								for (Player user : Bukkit.getOnlinePlayers()) {
+									sendMessage(user, prefix + "&3&l" + player.getName().toString() + " &7voted to skip night. (&b" + voteCount + "/" + votesNeeded + " votes&7)");
+								}
+								checkVotes(player);
+							} else {
+								sendMessage(player, "&cYou already voted to skip night!");
 							}
-							checkVotes(player);
 						} else {
-							sendMessage(player, "&cYou already voted to skip night!");
+							sendMessage(player, "&cYou cannot vote to skip night if you are already sleeping!");
 						}
 					} else {
-						sendMessage(player, "&cYou cannot vote to skip night if you are already sleeping!");
+						sendMessage(player, "&cOnly players currently in the overworld are allowed to vote! (i.e. you are not included for the number of players needed to vote)");
 					}
 				} else {
 					sendMessage(player, "&cYou cannot vote to skip night until someone sleeps first!");
@@ -73,9 +79,17 @@ public class SleepControl extends JavaPlugin implements Listener {
 	//			sleeping.add(player);
 	//	}
 	//}
+	public int getPlayersInOverworld() {
+		playersInOverworld.clear();
+		for (Player player : Bukkit.getOnlinePlayers()) {
+			if (player.getWorld().getEnvironment() == Environment.NORMAL)
+				playersInOverworld.add(player);
+		}
+		return playersInOverworld.size();
+	}
 	
 	public void initSleep() {
-		int numberOfPlayers = Bukkit.getOnlinePlayers().size(); // Get number of online players.
+		int numberOfPlayers = getPlayersInOverworld(); // Get number of online players in the overworld.
 		votesNeeded = (numberOfPlayers - sleeping.size()) / 2; // Requires half of the players online to be asleep or voting to skip night.
 		
 		if (numberOfPlayers > 1 && votesNeeded > 0) { // Sleep vote will initiate with more than one player online.
@@ -93,7 +107,7 @@ public class SleepControl extends JavaPlugin implements Listener {
 	}
 	
 	public void checkVotes(Player player) {
-		int numberOfPlayers = Bukkit.getOnlinePlayers().size(); // Get number of online players.
+		int numberOfPlayers = getPlayersInOverworld(); // Get number of online players.
 		
 		if (voteCount == votesNeeded || numberOfPlayers == 1 || votesNeeded == 0) {
 			player.getWorld().setTime(0); // Day time!
@@ -109,12 +123,12 @@ public class SleepControl extends JavaPlugin implements Listener {
 	}
 	
 	public void decrementSleepCount(Player player) {
-		if (player.getWorld().getTime() > 13000) {
+		if (player.getWorld().getTime() > nightTime) {
 			sleeping.remove(player);
 			
 			if (sleeping.size() > 0) { 
 				// Re-calculate the sleep vote.
-				int numberOfPlayers = Bukkit.getOnlinePlayers().size(); // Get number of online players.
+				int numberOfPlayers = getPlayersInOverworld(); // Get number of online players.
 				votesNeeded = (numberOfPlayers - sleeping.size()) / 2; // Requires half of the players online to be asleep or voting to skip night.
 				
 				for (Player user : Bukkit.getOnlinePlayers()) {
@@ -163,14 +177,17 @@ public class SleepControl extends JavaPlugin implements Listener {
 				voteCount--;
 				voted.remove(player);
 			}
-			// Re-calculate the sleep vote.
-			int numberOfPlayers = Bukkit.getOnlinePlayers().size(); // Get number of online players.
-			votesNeeded = (numberOfPlayers - sleeping.size()) / 2; // Requires half of the players online to be asleep or voting to skip night.
 			
-			for (Player user : Bukkit.getOnlinePlayers()) {
-				sendMessage(user, prefix + "&b&l" + sleeping.get(0).getName().toString() + " &7is no longer online. (&3" + voteCount + "/" + votesNeeded + " votes&7)");
+			if (player.getWorld().getTime() > nightTime) {
+				// Re-calculate the sleep vote.
+				int numberOfPlayers = getPlayersInOverworld(); // Get number of online players.
+				votesNeeded = (numberOfPlayers - sleeping.size()) / 2; // Requires half of the players online to be asleep or voting to skip night.
+				
+				for (Player user : Bukkit.getOnlinePlayers()) {
+					sendMessage(user, prefix + "&b&l" + player.getName().toString() + " &7is no longer online. (&3" + voteCount + "/" + votesNeeded + " votes&7)");
+				}
+				checkVotes(player);
 			}
-			checkVotes(player);
 		}
 	}
 }
