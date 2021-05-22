@@ -40,7 +40,7 @@ public class SleepControl extends JavaPlugin implements Listener {
 			if (label.equalsIgnoreCase("sleep")) {
 				// Add one to the vote count to pass the night.
 				if (!sleeping.isEmpty()) {
-					if (player.getWorld().getEnvironment() != Environment.NORMAL) {
+					if (player.getWorld().getEnvironment() == Environment.NORMAL) {
 						if (!sleeping.contains(player)) {
 							if (!voted.contains(player)) {
 								voteCount++;
