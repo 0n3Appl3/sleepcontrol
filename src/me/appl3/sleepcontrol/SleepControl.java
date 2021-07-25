@@ -137,6 +137,7 @@ public class SleepControl extends JavaPlugin implements Listener {
 			} else {
 				voteCount = 0; // If no one is sleeping, then the vote count is reset.
 				voted.clear();
+				sleeping.clear();
 				
 				for (Player user : Bukkit.getOnlinePlayers()) {
 					sendMessage(user, prefix + "&cNo one is asleep. Votes reset.");
