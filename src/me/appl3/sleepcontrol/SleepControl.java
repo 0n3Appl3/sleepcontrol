@@ -91,11 +91,22 @@ public class SleepControl extends JavaPlugin implements Listener {
 	public void initSleep() {
 		int numberOfPlayers = getPlayersInOverworld(); // Get number of online players in the overworld.
 		votesNeeded = (numberOfPlayers - sleeping.size()) / 2; // Requires half of the players online to be asleep or voting to skip night.
-		
+
+		////////// For debuging purposes. //////////
+		int temp = 0;
+		if ((numberOfPlayers % 2) != 0)
+			temp = votesNeeded + 1;
+
+		System.out.println("Players in overworld: " + numberOfPlayers + "\n" +
+				"Votes required to pass night: " + temp + "\n" +
+				"Players sleeping: " + sleeping.size() + "\n" +
+				"Players voted: " + voted.size());
+		////////////////////////////////////////////
+
 		if (numberOfPlayers > 1 && votesNeeded > 0) { // Sleep vote will initiate with more than one player online.
 			if ((numberOfPlayers % 2) != 0) // If there is an odd number of players, an extra vote is needed.
 				votesNeeded++;
-				
+
 			for (Player player : Bukkit.getOnlinePlayers()) {
 				if (sleeping.size() < 2) {
 					sendMessage(player, prefix + "&b&l" + sleeping.get(0).getName().toString() + " &7is now resting. Type &6/sleep &7to vote to skip night or sleep in a bed. (&3" + voteCount + "/" + votesNeeded + " votes&7)");
