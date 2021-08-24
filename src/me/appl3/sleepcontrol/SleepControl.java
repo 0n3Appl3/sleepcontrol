@@ -110,9 +110,8 @@ public class SleepControl extends JavaPlugin implements Listener {
 			for (Player player : Bukkit.getOnlinePlayers()) {
 				if (sleeping.size() < 2) {
 					sendMessage(player, prefix + "&b&l" + sleeping.get(0).getName().toString() + " &7is now resting. Type &6/sleep &7to vote to skip night or sleep in a bed. (&3" + voteCount + "/" + votesNeeded + " votes&7)");
-					return;
-				}
-				sendMessage(player, prefix + "&3&l" + sleeping.get(sleeping.size() - 1).getName().toString() + " &7is also resting. (&b" + voteCount + "/" + votesNeeded + " votes&7)");
+					//return;
+				} else sendMessage(player, prefix + "&3&l" + sleeping.get(sleeping.size() - 1).getName().toString() + " &7is also resting. (&b" + voteCount + "/" + votesNeeded + " votes&7)");
 			}
 		}
 	}
@@ -134,7 +133,7 @@ public class SleepControl extends JavaPlugin implements Listener {
 	}
 	
 	public void decrementSleepCount(Player player) {
-		if (player.getWorld().getTime() > nightTime) {
+		if (player.getWorld().getTime() > nightTime || player.getWorld().hasStorm()) {
 			sleeping.remove(player);
 			
 			if (sleeping.size() > 0) { 
@@ -190,7 +189,7 @@ public class SleepControl extends JavaPlugin implements Listener {
 				voted.remove(player);
 			}
 			
-			if (player.getWorld().getTime() > nightTime) {
+			if (player.getWorld().getTime() > nightTime || player.getWorld().hasStorm()) {
 				// Re-calculate the sleep vote.
 				int numberOfPlayers = getPlayersInOverworld(); // Get number of online players.
 				votesNeeded = (numberOfPlayers - sleeping.size()) / 2; // Requires half of the players online to be asleep or voting to skip night.
