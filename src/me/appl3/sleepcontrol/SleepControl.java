@@ -94,7 +94,7 @@ public class SleepControl extends JavaPlugin implements Listener {
 
 		////////// For debuging purposes. //////////
 		int temp = 0;
-		if ((numberOfPlayers % 2) != 0)
+		if (numberOfPlayers > 2 && ((numberOfPlayers - sleeping.size()) % 2) != 0)
 			temp = votesNeeded + 1;
 
 		System.out.println("Players in overworld: " + numberOfPlayers + "\n" +
@@ -104,7 +104,7 @@ public class SleepControl extends JavaPlugin implements Listener {
 		////////////////////////////////////////////
 
 		if (numberOfPlayers > 1 && votesNeeded > 0) { // Sleep vote will initiate with more than one player online.
-			if ((numberOfPlayers % 2) != 0) // If there is an odd number of players, an extra vote is needed.
+			if (numberOfPlayers > 2 && ((numberOfPlayers - sleeping.size()) % 2) != 0) // If there is an odd number of players, an extra vote is needed.
 				votesNeeded++;
 
 			for (Player player : Bukkit.getOnlinePlayers()) {
